@@ -1,20 +1,41 @@
-from fastapi import APIRouter, Body
-from models.userModels import MainUser, MainUserdb, NewResponse
-from typing import Union, Annotated
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from db import engine_s
+from dbContext import *
+from models.UserModel import UserModel
+
+
+
+def get_session():
+    with Session(engine_s) as session:
+        try:
+            yield session
+        finally:
+            session.close()
 
 users_router = APIRouter()
 
-users_list = [
-    MainUserdb(name="Иван", id=1, password="214214фвыафыва"),
-    MainUserdb(name="Пётр", id=9, password="выафпфывфафыва")
-]
+
+@users_router.get("/api/users/{user_id}", response_model=UserModel)
+def read_user(user_id: int, db: Session = Depends(get_session)):
+    user = db.query(UserEntity).filter(UserEntity.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
-def password_generation(code: str):
-    result = code * 228
+@users_router.post("/users/", response_model=UserModel)
+def create_user(user: UserModel, db: Session = Depends(get_session)):
+    entity = UserEntity(name = user.name, hashed_password = user.hashed_password)
+    db.add(entity)
+    db.commit()
+    db.refresh(entity)
+    user.id = entity.id
+    return user
 
 
-def find_user(identifier: int) -> Union[MainUserdb, None]:
+'''def find_user(identifier: int) -> Union[MainUserdb, None]:
     for user in users_list:
         if user.id == identifier:
             return user
@@ -58,4 +79,4 @@ def delete_user(identifier: int):
     if user is None:
         return NewResponse(message="Пользователь не найден")
     users_list.remove(user)
-    return users_list
+    return users_list'''

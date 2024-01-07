@@ -3,9 +3,9 @@ import os
 class Settings:
     POSTGRES_DATABASE_URLS: str
     POSTGRES_DATABASE_URLA: str
-    POSTRGRES_USER: str
+    POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    POSTRGRES_HOST: str
+    POSTGRES_HOST: str
     POSTGRES_PORT: str
     POSTGRES_DB: str
 
@@ -16,10 +16,16 @@ settings = Settings()
 settings.POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
 settings.POSTGRES_DB = os.environ.get("POSTGRES_DB")
 settings.POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-settings.POSTRGRES_HOST = os.environ.get("POSTRGRES_HOST")
-settings.POSTRGRES_USER = os.environ.get("POSTRGRES_USER")
+settings.POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
+settings.POSTGRES_USER = os.environ.get("POSTGRES_USER")
 settings.POSTGRES_DATABASE_URLS = f"postgresql:" \
-                            f"//{settings.POSTRGRES_USER}:" \
+                            f"//{settings.POSTGRES_USER}:" \
                             f"{settings.POSTGRES_PASSWORD}" \
-                            f"@{settings.POSTRGRES_HOST}/" \
+                            f"@{settings.POSTGRES_HOST}/" \
                             f"{settings.POSTGRES_DB}"
+settings.DATABASE_URL_ASYNC = f"postgresql+asyncpg:" \
+                              f"//{settings.POSTGRES_USER}:" \
+                              f"{settings.POSTGRES_PASSWORD}" \
+                              f"@{settings.POSTGRES_HOST}:" \
+                              f"{settings.POSTGRES_PORT}" \
+                              f"/{settings.POSTGRES_DB}"
